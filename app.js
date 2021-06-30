@@ -1,18 +1,43 @@
+const container = document.getElementById('root');
 const ajax = new XMLHttpRequest();
+const content = document.createElement('div');
 const NEWS_URL = 'https://api.hnpwa.com/v0/news/1.json';
-//동기적으로 처리하겠다 (false)
-ajax.open('GET', 'NEWS_URL', false);
+const CONTENT_URL = 'https://api.hnpwa.com/v0/item/@id.json';
+
+//동기적으로 처리하겠다 (false) 
+ajax.open('GET', NEWS_URL, false);
 ajax.send();
 
 //응답 값을 객체로 변환 (json일 경우)
 let newsFead = JSON.parse(ajax.response);
 const ul = document.createElement('ul'); 
 
+window.addEventListener('hashchange', function(){
+    const id = location.hash.substr(1);
+
+
+    ajax.open('GET', CONTENT_URL.replace('@id',id), false);
+    ajax.send();
+
+    const newsContent = JSON.parse(ajax.response);
+    const title = document.createElement('h1');
+
+    title.innerHTML = newsContent.title;
+
+    content.appendChild(title);
+    console.log(newsContent);
+});
 //10번 반복하여 restapi 정보 중 title result 출력 
 for(let i = 0; i < 10; i++){
     const li = document.createElement('li');
-    li.innerHTML = newsFead[i].title;
-    ul.appendChild(li);
-}
+    const a = document.createElement('a');
 
-document.getElementById('root').appendChild(ul);
+    a.href = `#${newsFead[i].id}`;
+    a.innerHTML = `${newsFead[i].title} (${newsFead[i].comments_count})`;
+
+    li.appendChild(a);
+    ul.appendChild(li);
+} 
+
+container.appendChild(ul);
+container.appendChild(content);
