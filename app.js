@@ -8,6 +8,7 @@ ajax.send();
 let newsFead = JSON.parse(ajax.response);
 const ul = document.createElement('ul'); 
 
+//10번 반복하여 restapi 정보 중 title result 출력 
 for(let i = 0; i < 10; i++){
     const li = document.createElement('li');
     li.innerHTML = newsFead[i].title;
