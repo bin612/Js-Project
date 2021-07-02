@@ -122,33 +122,50 @@ var container = document.getElementById('root');
 var ajax = new XMLHttpRequest();
 var content = document.createElement('div');
 var NEWS_URL = 'https://api.hnpwa.com/v0/news/1.json';
-var CONTENT_URL = 'https://api.hnpwa.com/v0/item/@id.json';
+var CONTENT_URL = 'https://api.hnpwa.com/v0/item/@id.json'; //ajax url 처리 및 중복 제거 함수
 
 function getData(url) {
-  //동기적으로 처리하겠다 (false) 
   ajax.open('GET', url, false);
-  ajax.send();
-  return JSON.parse(ajax.response);
-}
+  ajax.send(); //JSON.parse(ajax.response) 값을 반환
 
-var newsFead = getData(NEWS_URL);
-var ul = document.createElement('ul');
-window.addEventListener('hashchange', function () {
+  return JSON.parse(ajax.response);
+} //뉴스 리스트 함수
+
+
+function newsFeed() {
+  var newsFeed = getData(NEWS_URL); //배열
+
+  var newsList = [];
+  newsList.push('<ul>');
+
+  for (var i = 0; i < 10; i++) {
+    newsList.push("\n        <li>\n            <a href=\"#".concat(newsFeed[i].id, "\">\n            ").concat(newsFeed[i].title, " (").concat(newsFeed[i].comments_count, ")\n            </a>\n        </li>    \n        "));
+  }
+
+  newsList.push('</ul>');
+  container.innerHTML = newsList.join('');
+} //뉴스 상세 내용
+
+
+function newsDetail() {
   var id = location.hash.substr(1);
   var newsContent = getData(CONTENT_URL.replace('@id', id));
-  var title = document.createElement('h1');
-  title.innerHTML = newsContent.title;
-  content.appendChild(title);
-});
+  container.innerHTML = "\n    <h1>".concat(newsContent.title, "</h1>\n\n    <div>\n        <a href=\"#\">\uBAA9\uB85D\uC73C\uB85C</a>\n    </div>    \n    ");
+} //라우터 : 상황에 맞게 화면을 중계해주는 것 (a화면 b화면 c화면)
 
-for (var i = 0; i < 10; i++) {
-  var div = document.createElement('div');
-  div.innerHTML = "\n    <li>\n        <a href=\"#".concat(newsFead[i].id, "\">\n        ").concat(newsFead[i].title, " (").concat(newsFead[i].comments_count, ")\n        </a>\n    </li>    \n    ");
-  ul.appendChild(div);
+
+function router() {
+  var routPath = location.hash; //location.hash에 #이 들어오면 빈값만 반환한다.
+
+  if (routPath === '') {
+    newsFeed();
+  } else {
+    newsDetail();
+  }
 }
 
-container.appendChild(ul);
-container.appendChild(content);
+window.addEventListener('hashchange', router);
+router();
 },{}],"../../../../usr/local/lib/node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
@@ -177,7 +194,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "49997" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "61052" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
