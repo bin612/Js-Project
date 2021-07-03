@@ -122,7 +122,10 @@ var container = document.getElementById('root');
 var ajax = new XMLHttpRequest();
 var content = document.createElement('div');
 var NEWS_URL = 'https://api.hnpwa.com/v0/news/1.json';
-var CONTENT_URL = 'https://api.hnpwa.com/v0/item/@id.json'; //ajax url 처리 및 중복 제거 함수
+var CONTENT_URL = 'https://api.hnpwa.com/v0/item/@id.json';
+var store = {
+  currentPage: 1
+}; //ajax url 처리 및 중복 제거 함수
 
 function getData(url) {
   ajax.open('GET', url, false);
@@ -133,24 +136,24 @@ function getData(url) {
 
 
 function newsFeed() {
-  var newsFeed = getData(NEWS_URL); //배열
-
+  var newsFeed = getData(NEWS_URL);
   var newsList = [];
   newsList.push('<ul>');
 
-  for (var i = 0; i < 10; i++) {
-    newsList.push("\n        <li>\n            <a href=\"#".concat(newsFeed[i].id, "\">\n            ").concat(newsFeed[i].title, " (").concat(newsFeed[i].comments_count, ")\n            </a>\n        </li>    \n        "));
+  for (var i = (store.currentPage - 1) * 10; i < store.currentPage * 10; i++) {
+    newsList.push("\n        <li>\n            <a href=\"#/show/".concat(newsFeed[i].id, "\">\n            ").concat(newsFeed[i].title, " (").concat(newsFeed[i].comments_count, ")\n            </a>\n        </li>    \n        "));
   }
 
   newsList.push('</ul>');
+  newsList.push("\n    <div>\n        <a href = \"#/page/".concat(store.currentPage > 1 ? store.currentPage - 1 : 1, "\">\uC774\uC804 \uD398\uC774\uC9C0</a>\n        <a href = \"#/page/").concat(store.currentPage + 1, "\">\uB2E4\uC74C \uD398\uC774\uC9C0</a>\n    </div>\n    "));
   container.innerHTML = newsList.join('');
 } //뉴스 상세 내용
 
 
 function newsDetail() {
-  var id = location.hash.substr(1);
+  var id = location.hash.substr(7);
   var newsContent = getData(CONTENT_URL.replace('@id', id));
-  container.innerHTML = "\n    <h1>".concat(newsContent.title, "</h1>\n\n    <div>\n        <a href=\"#\">\uBAA9\uB85D\uC73C\uB85C</a>\n    </div>    \n    ");
+  container.innerHTML = "\n    <h1>".concat(newsContent.title, "</h1>\n\n    <div>\n        <a href=\"#/page/").concat(store.currentPage, "\">\uBAA9\uB85D\uC73C\uB85C</a>\n    </div>    \n    ");
 } //라우터 : 상황에 맞게 화면을 중계해주는 것 (a화면 b화면 c화면)
 
 
@@ -158,6 +161,9 @@ function router() {
   var routPath = location.hash; //location.hash에 #이 들어오면 빈값만 반환한다.
 
   if (routPath === '') {
+    newsFeed();
+  } else if (routPath.indexOf('#/page/') >= 0) {
+    store.currentPage = Number(routPath.substr(7));
     newsFeed();
   } else {
     newsDetail();
@@ -194,7 +200,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "61052" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "53086" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
