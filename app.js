@@ -36,7 +36,7 @@ function newsFeed() {
         </li>    
         `);   
     } 
-    
+
     newsList.push('</ul>');
     newsList.push(`
     <div>
@@ -50,7 +50,7 @@ function newsFeed() {
 
 //뉴스 상세 내용
 function newsDetail(){
-    const id = location.hash.substr(7);
+    const id = location.hash.substr(7); //주소 값을 7째 부터 시작
     const newsContent = getData(CONTENT_URL.replace('@id',id));
 
     container.innerHTML = `
@@ -64,13 +64,13 @@ function newsDetail(){
 
 //라우터 : 상황에 맞게 화면을 중계해주는 것 (a화면 b화면 c화면)
 function router(){
-    const routPath = location.hash;
+    const routePath = location.hash;
 
     //location.hash에 #이 들어오면 빈값만 반환한다.
-    if(routPath === ''){
+    if(routePath === ''){
         newsFeed();
-    } else if(routPath.indexOf('#/page/') >= 0){
-        store.currentPage = Number(routPath.substr(7));
+    } else if(routePath.indexOf('#/page/') >= 0){
+        store.currentPage = Number(routePath.substr(7));
         newsFeed();
     } else {
         newsDetail();

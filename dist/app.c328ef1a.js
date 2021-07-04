@@ -151,19 +151,20 @@ function newsFeed() {
 
 
 function newsDetail() {
-  var id = location.hash.substr(7);
+  var id = location.hash.substr(7); //주소 값을 7째 부터 시작
+
   var newsContent = getData(CONTENT_URL.replace('@id', id));
   container.innerHTML = "\n    <h1>".concat(newsContent.title, "</h1>\n\n    <div>\n        <a href=\"#/page/").concat(store.currentPage, "\">\uBAA9\uB85D\uC73C\uB85C</a>\n    </div>    \n    ");
 } //라우터 : 상황에 맞게 화면을 중계해주는 것 (a화면 b화면 c화면)
 
 
 function router() {
-  var routPath = location.hash; //location.hash에 #이 들어오면 빈값만 반환한다.
+  var routePath = location.hash; //location.hash에 #이 들어오면 빈값만 반환한다.
 
-  if (routPath === '') {
+  if (routePath === '') {
     newsFeed();
-  } else if (routPath.indexOf('#/page/') >= 0) {
-    store.currentPage = Number(routPath.substr(7));
+  } else if (routePath.indexOf('#/page/') >= 0) {
+    store.currentPage = Number(routePath.substr(7));
     newsFeed();
   } else {
     newsDetail();
@@ -200,7 +201,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "53086" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "58752" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
