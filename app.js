@@ -5,6 +5,7 @@ const NEWS_URL = 'https://api.hnpwa.com/v0/news/1.json';
 const CONTENT_URL = 'https://api.hnpwa.com/v0/item/@id.json';
 const store = {
     currentPage : 1,
+    feeds: [],
 };
 
 
@@ -18,10 +19,16 @@ function getData(url) {
     return JSON.parse(ajax.response);
 }
 
+function makeFeeds(feeds) {
+    for (let i = 0; i < feeds.length; i++) {
+        feeds[i].read = false;
+    }
+    return feeds;
+}
 //뉴스 리스트 함수
 function newsFeed() {
 
-    const newsFeed = getData(NEWS_URL);
+    let newsFeed = store.feeds;
     const newsList = [];
     let template = `
             <div class="bg-gray-600 min-h-screen">
@@ -48,7 +55,9 @@ function newsFeed() {
             </div>
         `;
 
-
+    if(newsFeed.length === 0){
+        newsFeed = store.feeds = makeFeeds(getData(NEWS_URL));
+    }
 
     for(let i = (store.currentPage - 1) * 10; i < store.currentPage * 10; i++){
         
@@ -117,15 +126,38 @@ function newsDetail(){
         </div>
     `;
 
-    function makeComment() {
-        const commentString = [];
-        // test 
-        for(let i = 0; i < comments.length; i++){
-
+    for(let i = 0; i < store.feeds.length; i++){
+        if(store.feeds[i].id === Number(id)){
+            store.feeds[i].read = true;
+            break;
         }
     }
 
-    container.innerHTML = template;
+    // web으로 부터 받아야 하는 인자임(데이터)으로 comments를 넣어야 한다.
+    function makeComment(comments, called = 0) {
+        const commentString = [];
+        // test 
+        for(let i = 0; i < comments.length; i++){
+            commentString.push(`
+                <div style="padding-left: ${called * 40}px;" class="mt-4">
+                <div class="text-gray-400">
+                    <i class="fa fa-sort-up mr-2"></i>
+                    <strong>${comments[i].user}</strong> ${comments[i].time_ago}
+                </div>
+                <p class="text-gray-700">${comments[i].content}</p>
+                </div>      
+            `);
+
+            //함수가 자기 자신을 호출하는 것을 재귀호출
+            //makeComments가 끝날 때 까지 호출
+            if(comments[i].comments.length > 0){
+                commentString.push(makeComment(comments[i].comments, called + 1));
+            }
+        }
+        return commentString.join('');
+    }
+
+    container.innerHTML = template.replace('{{__comments__}}', makeComment(newsContent.comments));
 }
 
 //라우터 : 상황에 맞게 화면을 중계해주는 것 (a화면 b화면 c화면)
