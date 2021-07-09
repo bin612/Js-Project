@@ -1,5 +1,5 @@
-.cache/
-.dist/
+JS-PROJECT/.cache
+JS-PROJECT/.dist
 typejs/.cache
 typejs/.dist
 typejs/package.json
