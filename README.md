@@ -18,7 +18,7 @@
     => typeScript 컴파일러가 typeScript file을 변환한 결과를 <br>
        dist 폴더에 출력해 놓은 것이라고 보면 된다.
 
-
+<h3> 변경 전 </h3>
 ``` javascript
 const container = document.getElementById('root');
 const ajax = new XMLHttpRequest();
@@ -30,4 +30,35 @@ const store = {
     feeds: [],
 };
 
-```       
+```
+
+
+<h3>변경 후</h3>
+```
+type Store = {
+    currentPage: number;
+    feeds: NewsFeed[];
+}
+
+type NewsFeed = {
+    id : number;
+    comment_count: number;
+    url: string;
+    user: string;
+    time_ago: string;
+    points: number;
+    title: string;
+    read?: boolean;
+}
+
+const container: HTMLElement | null = document.getElementById('root');
+const ajax: XMLHttpRequest = new XMLHttpRequest();
+const content = document.createElement('div');
+const NEWS_URL = 'https://api.hnpwa.com/v0/news/1.json';
+const CONTENT_URL = 'https://api.hnpwa.com/v0/item/@id.json';
+const store: Store = {
+    currentPage : 1,
+    feeds: [],
+};
+
+```
