@@ -1,4 +1,4 @@
-# Js-Project
+# JavaScript
 
 1. Hacker News RestAPI 
 2. javascript ajax 
