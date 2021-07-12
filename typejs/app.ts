@@ -4,15 +4,32 @@ type Store = {
     feeds: NewsFeed[];
 }
 
-type NewsFeed = {
-    id : number;
-    comment_count: number;
+type News = {
+    id:number;
+    time_ago: string;
+    title: string;
     url: string;
     user: string;
-    time_ago: string;
+    content: string;
+}
+
+
+// 뉴스피드 형변환
+// 인터섹션 type NewsFeed = News & {}
+type NewsFeed = News & {
+    comments_count: number;
     points: number;
-    title: string;
     read?: boolean;
+}
+
+//뉴스상세 형변환
+type NewsDetail = News & {
+    comments: NewsComment[];
+}
+
+type NewsComment = News & {
+    comments: NewsComment[];
+    level: number;
 }
 
 const container: HTMLElement | null = document.getElementById('root');
@@ -25,16 +42,11 @@ const store: Store = {
     feeds: [],
 };
 
-function updateView(html) {
-    if(container){
-        container.innerHTML = html;
-    } else {
-        console.error("최상위 컨테이너가 없어 UI를 진행하지 못했습니다.");
-    }  
-}
+
 
 //ajax url 처리 및 중복 제거 함수
-function getData(url) {
+//제네릭 <>
+function getData<AjaxResponse>(url: string): AjaxResponse{
 
     ajax.open('GET', url, false);
     ajax.send();
@@ -43,14 +55,24 @@ function getData(url) {
     return JSON.parse(ajax.response);
 }
 
-function makeFeeds(feeds) {
+function makeFeeds(feeds: NewsFeed[]): NewsFeed[] {
     for (let i = 0; i < feeds.length; i++) {
         feeds[i].read = false;
     }
     return feeds;
 }
+
+//return 값이 없을 땐 void
+function updateView(html: string): void {
+    if(container){
+        container.innerHTML = html;
+    } else {
+        console.error("최상위 컨테이너가 없어 UI를 진행하지 못했습니다.");
+    }  
+}
+
 //뉴스 리스트 함수
-function newsFeed() {
+function newsFeed(): void {
 
     let newsFeed: NewsFeed[] = store.feeds;
     const newsList = [];
@@ -80,7 +102,7 @@ function newsFeed() {
         `;
 
     if(newsFeed.length === 0){
-        newsFeed = store.feeds = makeFeeds(getData(NEWS_URL));
+        newsFeed = store.feeds = makeFeeds(getData<NewsFeed[]>(NEWS_URL));
     }
 
     for(let i = (store.currentPage - 1) * 10; i < store.currentPage * 10; i++){
@@ -108,16 +130,16 @@ function newsFeed() {
 
     //marking
     template = template.replace('{{__news_feed__}}', newsList.join(''));
-    template = template.replace('{{__prev_page__}}', store.currentPage > 1 ? store.currentPage - 1 : 1);
-    template = template.replace('{{__next_page__}}', store.currentPage + 1);
+    template = template.replace('{{__prev_page__}}', String(store.currentPage > 1 ? store.currentPage - 1 : 1));
+    template = template.replace('{{__next_page__}}', String(store.currentPage + 1));
 
     updateView(template);
 }
 
 //뉴스 상세 내용
-function newsDetail(){
+function newsDetail(): void{
     const id = location.hash.substr(7); //주소 값을 7째 부터 시작
-    const newsContent = getData(CONTENT_URL.replace('@id',id));
+    const newsContent = getData<NewsDetail>(CONTENT_URL.replace('@id',id));
 
     let template = `
         <div class="bg-gray-600 min-h-screen pb-8">
@@ -155,35 +177,38 @@ function newsDetail(){
         }
     }
 
-    // web으로 부터 받아야 하는 인자임(데이터)으로 comments를 넣어야 한다.
-    function makeComment(comments, called = 0) {
-        const commentString = [];
-        // test 
-        for(let i = 0; i < comments.length; i++){
-            commentString.push(`
-                <div style="padding-left: ${called * 40}px;" class="mt-4">
-                <div class="text-gray-400">
-                    <i class="fa fa-sort-up mr-2"></i>
-                    <strong>${comments[i].user}</strong> ${comments[i].time_ago}
-                </div>
-                <p class="text-gray-700">${comments[i].content}</p>
-                </div>      
-            `);
-
-            //함수가 자기 자신을 호출하는 것을 재귀호출
-            //makeComments가 끝날 때 까지 호출
-            if(comments[i].comments.length > 0){
-                commentString.push(makeComment(comments[i].comments, called + 1));
-            }
-        }
-        return commentString.join('');
-    }
-
    updateView(template.replace('{{__comments__}}', makeComment(newsContent.comments)));
 }
 
+
+   // web으로 부터 받아야 하는 인자임(데이터)으로 comments를 넣어야 한다.
+   function makeComment(comments: NewsComment[]): string {
+    const commentString = [];
+    // test 
+    for(let i = 0; i < comments.length; i++){
+        const comment: NewsComment = comments[i];
+        commentString.push(`
+            <div style="padding-left: ${comment.level * 40}px;" class="mt-4">
+            <div class="text-gray-400">
+                <i class="fa fa-sort-up mr-2"></i>
+                <strong>${comment.user}</strong> ${comment.time_ago}
+            </div>
+            <p class="text-gray-700">${comment.content}</p>
+            </div>      
+        `);
+
+        //함수가 자기 자신을 호출하는 것을 재귀호출
+        //makeComments가 끝날 때 까지 호출
+        if(comment.comments.length > 0){
+            commentString.push(makeComment(comment.comments));
+        }
+    }
+    return commentString.join('');
+}
+
+
 //라우터 : 상황에 맞게 화면을 중계해주는 것 (a화면 b화면 c화면)
-function router(){
+function router(): void{
     const routePath = location.hash;
 
     //location.hash에 #이 들어오면 빈값만 반환한다.

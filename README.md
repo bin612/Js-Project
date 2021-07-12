@@ -17,6 +17,10 @@
 2. dist <br>
     => typeScript 컴파일러가 typeScript file을 변환한 결과를 <br>
        dist 폴더에 출력해 놓은 것이라고 보면 된다.
+3. type <br>
+    => 전체적인 javascript의 code들을 typescript로 변환을 하였고
+        내가 알고 있는 strng, number와 같은 것들로 형변환?을 하는 것 같다.
+        *지금 코드의 흐름은 형변환과 중복 제거 정도가 될 것 같다.*
 
 # 변경 전
 ``` javascript
@@ -32,7 +36,7 @@ const store = {
 
 ```
 
-# 변경 후
+# Type 변경 후 / 2021.07.11
 ``` typescript
 type Store = {
     currentPage: number;
@@ -59,5 +63,37 @@ const store: Store = {
     currentPage : 1,
     feeds: [],
 };
+
+```
+
+# Type 변경 / 2021.07.12
+
+``` typescript
+type News = {
+    id:number;
+    time_ago: string;
+    title: string;
+    url: string;
+    user: string;
+    content: string;
+}
+
+// 뉴스피드 형변환
+// 인터섹션 type NewsFeed = News & {}
+type NewsFeed = News & {
+    comments_count: number;
+    points: number;
+    read?: boolean;
+}
+
+//뉴스상세 형변환
+type NewsDetail = News & {
+    comments: NewsComment[];
+}
+
+type NewsComment = News & {
+    comments: NewsComment[];
+    level: number;
+}
 
 ```
