@@ -43,6 +43,51 @@ const store: Store = {
     feeds: [],
 };
 
+//믹스인
+function applyApiMixins(targetClass: any, baseClasses: any[]): void {
+    baseClasses.forEach(baseClass => {
+      Object.getOwnPropertyNames(baseClass.prototype).forEach(name => {
+        const descriptor = Object.getOwnPropertyDescriptor(baseClass.prototype, name);
+        
+        if (descriptor) {
+          Object.defineProperty(targetClass.prototype, name, descriptor);
+        }            
+      });
+    });
+  }
+
+
+class Api {
+    url: string;
+    ajax: XMLHttpRequest;
+
+    constructor(url: string) {
+        this.url = url;
+        this.ajax = new XMLHttpRequest();
+    }
+
+    //중복 요소
+    getRequest<AjaxResponse>(url: string): AjaxResponse {
+        const ajax = new XMLHttpRequest();
+        ajax.open('GET', url, false);
+        ajax.send();
+
+        return JSON.parse(ajax.response);
+    }
+}
+
+class NewsFeedApi {
+    getData(): NewsFeed[] {
+    // 중복을 제거한 뒤 상위의 getRequest를 호출
+     return this.getRequest<NewsFeed[]>(NEWS_URL);
+    }
+}
+
+class NewsDetailApi {
+    getData(id: string): NewsDetail {
+         return this.getRequest<NewsDetail>(CONTENT_URL.replace('@id',id));
+    }
+}
 
 
 //ajax url 처리 및 중복 제거 함수
@@ -55,6 +100,14 @@ function getData<AjaxResponse>(url: string): AjaxResponse{
     //JSON.parse(ajax.response) 값을 반환
     return JSON.parse(ajax.response);
 }
+
+//믹스인은 
+interface NewsFeedApi extends Api {};
+interface NewsDetailApi extends Api {}; 
+
+// 믹스인으로 상속
+applyApiMixins(NewsFeedApi, [Api]);
+applyApiMixins(NewsDetailApi, [Api]);
 
 function makeFeeds(feeds: NewsFeed[]): NewsFeed[] {
     for (let i = 0; i < feeds.length; i++) {
@@ -75,9 +128,11 @@ function updateView(html: string): void {
 //뉴스 리스트 함수
 function newsFeed(): void {
 
+    // class를 만들어 줬으면 인스턴스를 꼭 만들어줘야 한다.
+    let api = new NewsFeedApi();
     let newsFeed: NewsFeed[] = store.feeds;
-    const newsList = [];
-    let template = `
+    const newsList: string[] = [];
+    let template: string = `
             <div class="bg-gray-600 min-h-screen">
             <div class="bg-white text-xl">
                 <div class="mx-auto px-4">
@@ -103,7 +158,7 @@ function newsFeed(): void {
         `;
 
     if(newsFeed.length === 0){
-        newsFeed = store.feeds = makeFeeds(getData<NewsFeed[]>(NEWS_URL));
+        newsFeed = store.feeds = makeFeeds(api.getData());
     }
 
     for(let i = (store.currentPage - 1) * 10; i < store.currentPage * 10; i++){
@@ -140,7 +195,8 @@ function newsFeed(): void {
 //뉴스 상세 내용
 function newsDetail(): void{
     const id = location.hash.substr(7); //주소 값을 7째 부터 시작
-    const newsContent = getData<NewsDetail>(CONTENT_URL.replace('@id',id));
+    const api = new NewsDetailApi();
+    const newsDetail: NewsDetail = api.getData(id);
 
     let template = `
         <div class="bg-gray-600 min-h-screen pb-8">
@@ -160,9 +216,9 @@ function newsDetail(): void{
         </div>
 
         <div class="h-full border rounded-xl bg-white m-6 p-4 ">
-            <h2>${newsContent.title}</h2>
+            <h2>${newsDetail.title}</h2>
             <div class="text-gray-400 h-20">
-            ${newsContent.content}
+            ${newsDetail.content}
             </div>
 
             {{__comments__}}
@@ -178,7 +234,7 @@ function newsDetail(): void{
         }
     }
 
-   updateView(template.replace('{{__comments__}}', makeComment(newsContent.comments)));
+   updateView(template.replace('{{__comments__}}', makeComment(newsDetail.comments)));
 }
 
 
