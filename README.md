@@ -21,7 +21,10 @@
     => 전체적인 javascript의 code들을 typescript로 변환을 하였고
         내가 알고 있는 strng, number와 같은 것들로 형변환?을 하는 것 같다.
         *지금 코드의 흐름은 형변환과 중복 제거 정도가 될 것 같다.*
-
+4. class / interface <br>
+    => 쉽게 말하면 객체를 사용하기 위해 class로 만들어서 사용하는 것이다.
+        class를 선언하여 사용해준다면 재사용성이 강하다.
+    => typescript에서 interface는 여러 가지 자료형의 타입을 정의하는 용도로 사용한다.
 # 변경 전
 ``` javascript
 const container = document.getElementById('root');
