@@ -1,7 +1,6 @@
 # JavaScript
 
 ### 해커뉴스 API 활용 프론트작업 링크
-#### https://github.com/bin612/Js-Project
 
 
 1. Hacker News RestAPI 
