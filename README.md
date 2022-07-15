@@ -22,7 +22,7 @@
        dist 폴더에 출력해 놓은 것이라고 보면 된다.
 3. type <br>
     => 전체적인 javascript의 code들을 typescript로 변환을 하였고
-        내가 알고 있는 strng, number와 같은 것들로 형변환?을 하는 것 같다.
+        내가 알고 있는 string, number와 같은 것들로 형변환?을 하는 것 같다.
         *지금 코드의 흐름은 형변환과 중복 제거 정도가 될 것 같다.*
 4. class / interface <br>
     => 쉽게 말하면 객체를 사용하기 위해 class로 만들어서 사용하는 것이다.
